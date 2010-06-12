@@ -1,6 +1,6 @@
 # node-logger
 
-[http://github.com/quirkey/node-logger]
+[http://github.com/quirkey/node-logger](http://github.com/quirkey/node-logger)
 
 ## SUMMARY
 
