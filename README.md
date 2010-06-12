@@ -1,11 +1,10 @@
 # node-logger
 
-http://github.com/quirkey/node-logger
+[http://github.com/quirkey/node-logger]
 
 ## SUMMARY
 
-A simple logging library that combines the simple APIs of Ruby's logger.rb and 
-the browser-js console.log()
+A simple logging library that combines the simple APIs of Ruby's logger.rb and browser-js console.log()
 
 ## USAGE
 
