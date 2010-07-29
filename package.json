@@ -1,0 +1,7 @@
+{ "name" : "node-logger"
+, "version" : "0.0.1"
+, "description" : "A simple logging library that combines the simple APIs of Ruby's logger.rb and browser-js console.log()"
+, "author" : "Aaron Quint <aaron@quirkey.com>"
+, "main" : "logger"
+, "engines" : { "node" : ">=0.1.90" }
+}
