@@ -45,7 +45,7 @@ var Logger = function(log_file_path) {
   //default output stack trace
   this.stackTrace = true;
   //reduce unnecessary trace by the filter string.
-  //for example,set the filter equal your root path name to output the caller at your project only.
+  //for example,set the filter equal your application's root path name to output the caller at your project only.
   this.stackTraceFilter = null;
   
   // if a path is given, try to write to it
@@ -101,7 +101,7 @@ Logger.prototype.log = function() {
     });
     message = this.format(Logger.levels[log_index], new Date(), message);
     var stackstr = '';
-    if (this.stackTrace) {
+    if (this.stackTrace && log_index < 2) {
       var stack  = new Error().stack.split('\n');
       var self = this;
       stackstr = stack.filter(function(v){
@@ -109,7 +109,7 @@ Logger.prototype.log = function() {
           if (self.stackTraceFilter) {
              return  v.indexOf(self.stackTraceFilter)>-1;
           }
-          return false;
+          return true;
        }).join('\n') + '\n';
     }
     this.write(message + "\n" +stackstr);
