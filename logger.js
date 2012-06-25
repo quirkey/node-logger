@@ -62,7 +62,7 @@ Logger.levels = ['fatal', 'error', 'warn', 'info', 'debug'];
 
 
 // This method make Logger uses a file
-Logger.prototype.useFile = function(path) {
+Logger.prototype.useFile = function(log_file_path) {
   log_file_path = path.normalize(log_file_path);
   this.stream = fs.createWriteStream(log_file_path, {flags: 'a', encoding: 'utf8', mode: 0666});
   this.stream.write("\n");
