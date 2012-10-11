@@ -1,7 +1,7 @@
-{ "name" : "logger"
-, "version" : "0.0.1"
-, "description" : "A simple logging library that combines the simple APIs of Ruby's logger.rb and browser-js console.log()"
-, "author" : "Aaron Quint <aaron@quirkey.com>"
+{ "name" : "simple-logger"
+, "version" : "1.0.0"
+, "description" : "This is a simple fork of https://github.com/quirkey/node-logger"
+, "author" : "Fatshotty <fat@fatshotty.net>"
 , "main" : "logger"
 , "engines" : { "node" : ">=0.1.90" }
 }

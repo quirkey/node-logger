@@ -29,11 +29,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 var path = require('path'),
-    sys  = require('sys'),
+    sys  = require('util'),
     fs   = require('fs');
 
-var makeArray = function(nonarray) { 
-  return Array.prototype.slice.call(nonarray); 
+var makeArray = function(nonarray) {
+  return Array.prototype.slice.call(nonarray);
 };
 
 // Create a new instance of Logger, logging to the file at `log_file_path`
@@ -42,23 +42,37 @@ var Logger = function(log_file_path) {
   // default write is STDOUT
   this.write     = sys.print;
   this.log_level_index = 3;
-  
+
   // if a path is given, try to write to it
   if (log_file_path) {
     // Write to a file
-    log_file_path = path.normalize(log_file_path);
-    this.stream = fs.createWriteStream(log_file_path, {flags: 'a', encoding: 'utf8', mode: 0666});
-    this.stream.write("\n");
-    this.write = function(text) { this.stream.write(text); };
+    this.useFile( log_file_path );
+  } else {
+    // write log into stdout
+    this.stream = process.stdout;
   }
+
+  this.stream.write("\n");
+  this.write = function(text) { this.stream.write(text); };
+
+  return this;
 };
 
 Logger.levels = ['fatal', 'error', 'warn', 'info', 'debug'];
 
+
+// This method make Logger uses a file
+Logger.prototype.useFile = function(log_file_path) {
+  log_file_path = path.normalize(log_file_path);
+  this.stream = fs.createWriteStream(log_file_path, {flags: 'a', encoding: 'utf8', mode: 0666});
+  this.stream.write("\n");
+  return this;
+};
+
 // The default log formatting function. The default format looks something like:
 //
 //    error [Sat Jun 12 2010 01:12:05 GMT-0400 (EDT)] message
-// 
+//
 Logger.prototype.format = function(level, date, message) {
   return [level, ' [', date, '] ', message].join('');
 };
@@ -79,8 +93,8 @@ Logger.prototype.log = function() {
       message = '';
 
   // if you're just default logging
-  if (log_index === -1) { 
-    log_index = this.log_level_index; 
+  if (log_index === -1) {
+    log_index = this.log_level_index;
   } else {
     // the first arguement actually was the log level
     args.shift();
