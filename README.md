@@ -4,6 +4,7 @@
 
 ## SUMMARY
 
+Removed the `sys.print` because it is obsolete
 A simple logging library that combines the simple APIs of Ruby's logger.rb and browser-js console.log()
 
 ## USAGE
@@ -11,14 +12,14 @@ A simple logging library that combines the simple APIs of Ruby's logger.rb and b
 A logger has 5 different levels of logging in a specific order:
 
     'fatal', 'error', 'warn', 'info', 'debug'
-    
-Each of these log levels has its own method on the logging instance. You can set the maximum log level on a logger at runtime. 
+
+Each of these log levels has its own method on the logging instance. You can set the maximum log level on a logger at runtime.
 
 By default, a logger writes to STDOUT, but given a writeable file path, it will log directly to a file.
 
 ### Instantiation:
 
-    // node/common.js style 
+    // node/common.js style
     var logger = require('./logger').createLogger(); // logs to STDOUT
     var logger = require('./logger').createLogger('development.log'); // logs to a file
 
@@ -43,7 +44,7 @@ You can completely customize the look of the log by overriding the `format()` me
     };
     logger.debug('message');
     //=> 1276365362167;  message
-    
+
 ## COMMENTS/ISSUES:
 
 F-f-fork it, baby.
