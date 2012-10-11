@@ -1,4 +1,4 @@
-{ "name" : "fat-logger"
+{ "name" : "simple-logger"
 , "version" : "1.0.0"
 , "description" : "This is a simple fork of https://github.com/quirkey/node-logger"
 , "author" : "Fatshotty <fat@fatshotty.net>"
