@@ -40,7 +40,7 @@ var makeArray = function(nonarray) {
 // if `log_file_path` is null, log to STDOUT.
 var Logger = function(log_file_path) {
   // default write is STDOUT
-  this.write     = sys.print;
+  this.write     = console.log;
   this.log_level_index = 3;
   
   // if a path is given, try to write to it
