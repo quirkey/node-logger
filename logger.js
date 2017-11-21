@@ -29,11 +29,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 var path = require('path'),
-    sys  = require('sys'),
+    sys  = require('util'),
     fs   = require('fs');
 
 var makeArray = function(nonarray) { 
-  return Array.prototype.slice.call(nonarray); 
+  return Array.prototype.slice.call(nonarray);
 };
 
 // Create a new instance of Logger, logging to the file at `log_file_path`
