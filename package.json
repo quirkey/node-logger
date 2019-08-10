@@ -1,7 +1,22 @@
-{ "name" : "logger"
-, "version" : "0.0.1"
-, "description" : "A simple logging library that combines the simple APIs of Ruby's logger.rb and browser-js console.log()"
-, "author" : "Aaron Quint <aaron@quirkey.com>"
-, "main" : "logger"
-, "engines" : { "node" : ">=0.1.90" }
+{
+  "name": "logger",
+  "version": "1.0.0",
+  "description": "[http://github.com/quirkey/node-logger](http://github.com/quirkey/node-logger)",
+  "main": "logger.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/r3wt/node-logger.git"
+  },
+  "author": "r3wt",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/r3wt/node-logger/issues"
+  },
+  "homepage": "https://github.com/r3wt/node-logger#readme",
+  "dependencies": {
+    "colors": "^1.3.3"
+  }
 }
