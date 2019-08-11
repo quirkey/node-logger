@@ -1,4 +1,4 @@
-// name: logger.js
+// name: simple-logger
 // version: 0.0.1
 // http://github.com/quirkey/node-logger
 // forked by Garrett Morris
@@ -39,13 +39,13 @@ function isFormattableString( args ) {
 
 class Logger {
 
-    constructor(log_level='debug',transports=[console.log]) {
+    constructor(options={log_level='debug',transports=['console']}) {
 
-        this.transports = transports; // default write is STDOUT
         this.levels = ['emerg','alert','crit','error','warning','notice','info','debug'];
         this.colors = ['red','red','red','red','yellow','cyan','cyan','green']; //colors match up to levels
-        this.setLevel(log_level);
-
+        this.setLevel(options.log_level);
+        this.setTransports(pptions.transports);
+        
     }
 
     setLevel(new_level) {
@@ -53,8 +53,32 @@ class Logger {
         return (index != -1) ? this.log_level_index = index : false;
     }
 
+    setTransports(transports) {
+        if(!Array.isArray(transports)){
+            throw new Error('transports must be an array.');
+        }
+        this.transports = transports.map(transport=>{
+            if(typeof transport==='string') {
+                try {
+                    var Transport = require('./transports/'+transport);
+                    return new Transport;
+                }
+                catch(err){
+                    throw new Error('Unknown built-in transport named `'+transport+'`. ');
+                }
+            }
+            if(typeof transport === 'object') {
+                if(transport.write && typeof transport.write==='function'){
+                    return transport;
+                }else{
+                    throw new Error('invalid transport provided ('+transport.name+'). Transports must be an object with a function called `write`');
+                }
+            }
+        })
+    }
+
     write(text) {
-        this.transports.forEach(transport=>transport(text));
+        this.transports.forEach(transport=>transport.write(text));
     }
 
     format(level, date, message) {
@@ -101,8 +125,8 @@ class Logger {
 
 }
 
-function createLogger(...args) {
-    const logger = new Logger(...args);
+function createLogger(options={}) {
+    const logger = new Logger(options);
     const log = (...args) => {
         logger.log('info',...args);
     };
@@ -114,5 +138,35 @@ function createLogger(...args) {
     return log;  
 }
 
+var old = {};
+var isWrapped = false;
 
-module.exports = createLogger;
+function wrapConsole( logger ) {
+    if(!isWrapped) {
+        var c = global.console;
+        old.log = c.log;
+        old.warn = c.warn;
+        old.error = c.error;
+        old.info = c.info;
+        c.log = logger.info;
+        c.warn = logger.warning;
+        c.error = logger.error;
+        c.info = logger.info;
+        isWrapped = true;
+    }
+}
+
+function unwrapConsole() {
+    if(isWrapped) {
+        var c = global.console;
+        c.log = old.log;
+        c.warn = old.warn;
+        c.error = old.error;
+        c.info = old.info;
+        old = {};
+        isWrapped = false;
+    }
+}
+
+
+module.exports = {createLogger,Logger,wrapConsole,unwrapConsole,isFormattableString};

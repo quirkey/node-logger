@@ -1,52 +1,121 @@
 # node-logger
 
-[http://github.com/quirkey/node-logger](http://github.com/quirkey/node-logger)
+[http://github.com/r3wt/node-logger](http://github.com/r3wt/node-logger)
 
 ## SUMMARY
 
-A simple logging library that combines the simple APIs of Ruby's logger.rb and browser-js console.log()
+a simple logger for node.js
+
+## WHY??
+
+I wanted a logger with these features:
+- identical output/features provided by `console.log`, but with:
+  - color coded log levels 
+  - timestamps
+  - multiple, customizable transports
+- ability to override `console` functions `log`,`warn`,`error`,and `info` globally for ease of use, if desired.
+
+I found [this library from quirkey](https://github.com/quirkey/node-logger) and modified it according to the above principals.
 
 ## USAGE
 
-A logger has 5 different levels of logging in a specific order:
+A logger has 7 different levels of logging in a specific order:
 
-    'fatal', 'error', 'warn', 'info', 'debug'
+    'emerg','alert','crit','error','warning','notice','info','debug'
     
-Each of these log levels has its own method on the logging instance. You can set the maximum log level on a logger at runtime. 
+Each of these log levels has its own method on the logging instance.
 
-By default, a logger writes to STDOUT, but given a writeable file path, it will log directly to a file.
+### Basic Usage
 
-### Instantiation:
+create a logger and use the log instance:
+```js
+const {createLogger} = require('<package name>');
+const log = createLogger();
 
-    // node/common.js style 
-    var logger = require('./logger').createLogger(); // logs to STDOUT
-    var logger = require('./logger').createLogger('development.log'); // logs to a file
+log('the quick %s fox jumped %s the %s %s','brown','over','lazy','dog');//default level is info. 
+log.warning('uh oh!');
+log.error('oh fudge some bad stuff happened',new Error('am bad stuff. did happen'),{someOtherData:true});// works just like the console, you get the point right?
+
+```
+
+wrapping `console` and writing to stdout:
+```js
+const {createLogger,wrapConsole,unwrapConsole} = require('<package name>');
+const log = createLogger();
+wrapConsole(log);//wraps the console globally
+
+console.log('hi!');
+console.warn('warning');
+console.error('error');
+
+unwrapConsole();//unwrap console globally
+
+```
+
+providing a custom transport:
+
+```js
+const {createLogger} = require('<package name>');
+
+class CustomTransport {
+    write(message) {
+        // do something with the message
+    }
+}
+
+const myTransport = new CustomTransport;
+
+const log = createLogger({
+    transports: ['console',myTransport]//in this example we keep the console, but add our custom transport as well.
+});
+
+
+```
+
+the kitchen sink:
+```js
+
+const {createLogger,wrapConsole,unwrapConsole,Logger,isFormattableString} = require('<package name>');
+
+const log = createLogger({log_level:'debug',transports:['console']});//default options are shown.  
+
+log('hi!');//default log level is info
+log.info('hi!');
+log.error(new Error('test'));
+log.warning('warning message');
+log.debug('blah blah blah');
+log.alert('an important error');
+log.crit('a critical error');
+log.emerg('an emergency error');
+log.notice('a notice');
+
+wrapConsole(log);//wraps the console globally
+
+console.log('hi!');
+console.warn('warning');
+console.error('error');
+
+unwrapConsole();//unwrap console globally
+
+log.logger// Logger this is the low level Logger instance
+
+//lets customize our console transport
+const ConsoleTransport = require('<package name>/transports/console');
+var customTransports = new ConsoleTransport({nextTick:true});//delay writing logs until next tick
+
+// change the minimum log level
+log.logger.setLevel('warning');//nothing below warnings will be transported
+
+// you can change transports on the fly, not just at the time you created the logger
+log.logger.setTransports([customTransports]);
+
+log('now my messages are delayed until next tick');
+
+```
 
 ### Logging:
 
-Any of the logging methods take `n` arguments, which are each joined by ' ' (similar to `console.log()`). If an argument is not a string, it is string-ified by `sys.inspect()`
-
-    logger.info('loading an array', [1,2,3], 'now!');
-    //=> info [Sat Jun 12 2010 01:12:05 GMT-0400 (EDT)]  loading an array [ 1, 2, 3, [length]: 3 ] now!
-    logger.debug('this wont be logged');
-    //=> false
-    logger.setLevel('debug');
-    logger.debug('this will be logged now');
-    //=> debug [Sat Jun 12 2010 01:12:54 GMT-0400 (EDT)]  this will be logged now
-
-### Customization:
-
-You can completely customize the look of the log by overriding the `format()` method on a logger.
-
-    logger.format = function(level, date, message) {
-      return date.getTime().toString() + "; " + message;
-    };
-    logger.debug('message');
-    //=> 1276365362167;  message
-    
-## COMMENTS/ISSUES:
-
-F-f-fork it, baby.
+Any of the logging methods take `n` arguments, which are each joined by ' ' (similar to `console.log()`).
 
 ## LICENSE
 
