@@ -23,14 +23,14 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
-
-const debug = m => process.stdout.write(m+"\n")
+var isDebug = false;
+const debug = m => isDebug && process.stdout.write(m+"\n")
 
 const colors = require('colors/safe');
 const util = require('util');
 
 function isFormattableString( args ) {
-    // debug(args);
+    debug(args);
     if(!args.length) return false;
     if(typeof args[0] !== 'string') return false;
     if( args[0].includes('%s') || args[0].includes('%d') || args[0].includes('%i') || args[0].includes('%f') || args[0].includes('%j') || args[0].includes('%o') || args[0].includes('%O') ) {
@@ -46,7 +46,8 @@ const dateFormatter = d=> d.toLocaleString('en-US');
 
 class Logger {
 
-    constructor(options={log_level:'debug',transports:['console'],formatDate:false}) {
+    constructor(options={log_level:'debug',transports:['console'],formatDate:false,debug:false}) {
+        isDebug = options.debug;
         this.setLevel(options.log_level);
         this.setTransports(options.transports);
         this.setDateFormat(options.formatDate||dateFormatter);
@@ -65,8 +66,8 @@ class Logger {
         }
         this.log_level = new_level;
         this.log_level_index = this.getIndex(this.log_level);
-        // debug(this.log_level);
-        // debug(this.log_level_index);
+        debug(this.log_level);
+        debug(this.log_level_index);
     }
 
     setTransports(transports) {
@@ -80,21 +81,29 @@ class Logger {
                     return new Transport;
                 }
                 catch(err){
+                    debug(err);
                     throw new Error('Unknown built-in transport named `'+transport+'`. ');
                 }
             }
             if(typeof transport === 'object') {
                 if(transport.write && typeof transport.write==='function'){
                     return transport;
+                }
+                else if(transport.writeCustom && typeof transport.writeCustom==='function'){
+                    return transport;
                 }else{
-                    throw new Error('invalid transport provided ('+transport.name+'). Transports must be an object with a function called `write`');
+                    throw new Error('invalid transport provided ('+transport.name+'). Transports must be an object with a function called `write` or `writeCustom` ');
                 }
             }
         })
     }
 
+    isError(level) {
+        return ['emerg','alert','crit','error'].indexOf(level) !== -1;//tells if a log level is one of the 4 error levels
+    }
+
     setDateFormat(fn) {
-        // debug(fn);
+        debug(fn);
         this.formatDate = fn;
     }
 
@@ -103,24 +112,24 @@ class Logger {
     }
 
     format(level, date, message) {
-        // debug(level);
-        // debug(this.levels[level]);
+        debug(level);
+        debug(this.levels[level]);
         return [ colors[ this.levels[level] ](pad(level,7)), ' [', this.formatDate(date), '] ', message ].join('');
     }
 
     log(...args) {
-        // debug(Array.isArray(args));
+        debug(Array.isArray(args));
         if(!args.length){
             return;
         }
         const log_level = this.levels.hasOwnProperty(args[0]) ? args.shift() : 'info';
         const index = this.getIndex(log_level);
         let message = '';
-        // debug(log_level);
-        // debug(index);
+        debug(log_level);
+        debug(index);
         if (index >= this.log_level_index) {
             if( isFormattableString(args) ) {
-                // debug('logger: formatting message');
+                debug('logger: formatting message');
                 message = util.format(...args);
             }else{
                 // join the arguments into a loggable string
@@ -137,7 +146,7 @@ class Logger {
             this.write(message + "\n",log_level);
             return message;
         }else{
-            // debug("miss\n")
+            debug("miss\n")
         }
         return false;
     }
