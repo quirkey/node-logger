@@ -1,22 +1,23 @@
 {
   "name": "logger",
   "version": "1.0.0",
-  "description": "[http://github.com/quirkey/node-logger](http://github.com/quirkey/node-logger)",
+  "description": "a simple logger for node.js",
   "main": "logger.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/r3wt/node-logger.git"
+    "url": "git+https://github.com/r3wt/log.git"
   },
   "author": "r3wt",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/r3wt/node-logger/issues"
+    "url": "https://github.com/r3wt/log/issues"
   },
-  "homepage": "https://github.com/r3wt/node-logger#readme",
+  "homepage": "https://github.com/r3wt/log#readme",
   "dependencies": {
     "colors": "^1.3.3"
-  }
+  },
+  "devDependencies": {}
 }
