@@ -12,8 +12,8 @@ I wanted a logger with these features:
 - identical output/features provided by `console.log`, but with:
   - color coded log levels 
   - timestamps
-  - multiple, customizable transports
-- ability to override `console` functions `log`,`warn`,`error`,and `info` globally for ease of use, if desired.
+- multiple, customizable transports
+- optional ability to override `console` functions `log`,`warn`,`error`,and `info` globally for ease of integration.
 
 I found [this library from quirkey](https://github.com/quirkey/node-logger) and modified it according to the above principals.
 
@@ -58,7 +58,9 @@ providing a custom transport:
 const {createLogger} = require('<package name>');
 
 class CustomTransport {
-    write(message) {
+    write(message,level,logger) {
+        // every transport must contain a method called write
+        // the function is called with formatted message, log level of message, and the logger instance
         // do something with the message
     }
 }
@@ -66,9 +68,33 @@ class CustomTransport {
 const myTransport = new CustomTransport;
 
 const log = createLogger({
-    transports: ['console',myTransport]//in this example we keep the console, but add our custom transport as well.
+    transports: ['console',myTransport]//in this example we keep the default console transport, but add our own custom transport as well.
 });
 
+
+```
+
+providing a custom date formatter:
+
+```js
+
+const {createLogger} = require('<package name>');
+
+const myDateFormatter = (date) => {
+    //format a date how you like
+    return date.toLocaleString('en-GB', { timeZone: 'UTC' });
+};
+
+const log = createLogger({ formatDate: myDateFormatter });
+```
+
+supplying options to built in transports:
+
+```js
+const {createLogger} = require('<package name>');
+const ConsoleTransport = require('<package name>/transports/console');
+var consoleTransport = new ConsoleTransport({nextTick:true});//delay writing logs until next tick
+const log = createLogger({transports:[consoleTransport]});
 
 ```
 
@@ -101,13 +127,16 @@ log.logger// Logger this is the low level Logger instance
 
 //lets customize our console transport
 const ConsoleTransport = require('<package name>/transports/console');
-var customTransports = new ConsoleTransport({nextTick:true});//delay writing logs until next tick
+var consoleTransport = new ConsoleTransport({nextTick:true});//delay writing logs until next tick
+// you can change transports on the fly, not just at the time you created the logger
+log.logger.setTransports([consoleTransport]);
 
 // change the minimum log level
 log.logger.setLevel('warning');//nothing below warnings will be transported
 
-// you can change transports on the fly, not just at the time you created the logger
-log.logger.setTransports([customTransports]);
+
+
+log.logger.setDateFormat
 
 log('now my messages are delayed until next tick');
 

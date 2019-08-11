@@ -4,11 +4,12 @@ class ConsoleTransport {
         this.delayed = options.nextTick;
     }
 
-    write(message) {
+    write(message,level,logger) {
+        const stream = ['emerg','alert','crit','error'].indexOf(level) !== -1 ? 'stderr' : 'stdout';
         if(this.delayed) {
-            process.nextTick(()=>process.stdout.write(message));
+            process.nextTick(()=>process[stream].write(message));
         } else {
-            process.stdout.write(message);
+            process[stream].write(message);
         }
     }
 

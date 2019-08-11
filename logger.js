@@ -24,11 +24,13 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+const debug = m => process.stdout.write(m+"\n")
+
 const colors = require('colors/safe');
 const util = require('util');
 
 function isFormattableString( args ) {
-    // console.log(args);
+    // debug(args);
     if(!args.length) return false;
     if(typeof args[0] !== 'string') return false;
     if( args[0].includes('%s') || args[0].includes('%d') || args[0].includes('%i') || args[0].includes('%f') || args[0].includes('%j') || args[0].includes('%o') || args[0].includes('%O') ) {
@@ -37,20 +39,34 @@ function isFormattableString( args ) {
     return false;
 }
 
+//pad string to specified length. used to keep messages aligned nicely
+const pad = (str,len) => str + new Array(len - str.length).fill(' ').join('');
+
+const dateFormatter = d=> d.toLocaleString('en-US');
+
 class Logger {
 
-    constructor(options={log_level='debug',transports=['console']}) {
-
-        this.levels = ['emerg','alert','crit','error','warning','notice','info','debug'];
-        this.colors = ['red','red','red','red','yellow','cyan','cyan','green']; //colors match up to levels
+    constructor(options={log_level:'debug',transports:['console'],formatDate:false}) {
         this.setLevel(options.log_level);
-        this.setTransports(pptions.transports);
-        
+        this.setTransports(options.transports);
+        this.setDateFormat(options.formatDate||dateFormatter);
+    }
+
+    getIndex(k){ 
+        if(!this.hasOwnProperty('_keys')) {
+            this._keys = Object.keys(this.levels).reverse();
+        }
+        return this._keys.indexOf(k)
     }
 
     setLevel(new_level) {
-        var index = this.levels.indexOf(new_level);
-        return (index != -1) ? this.log_level_index = index : false;
+        if(!this.levels.hasOwnProperty(new_level)){
+            throw new Error('invalid log_level ('+new_level+') supplied.');
+        }
+        this.log_level = new_level;
+        this.log_level_index = this.getIndex(this.log_level);
+        // debug(this.log_level);
+        // debug(this.log_level_index);
     }
 
     setTransports(transports) {
@@ -77,33 +93,34 @@ class Logger {
         })
     }
 
-    write(text) {
-        this.transports.forEach(transport=>transport.write(text));
+    setDateFormat(fn) {
+        // debug(fn);
+        this.formatDate = fn;
+    }
+
+    write(text,level) {
+        this.transports.forEach(transport=>transport.write(text,level,this));
     }
 
     format(level, date, message) {
-        // console.log(level);
-        return [ colors[ this.colors[this.levels.indexOf(level)] ](level), ' [', date, '] ', message].join('');
+        // debug(level);
+        // debug(this.levels[level]);
+        return [ colors[ this.levels[level] ](pad(level,7)), ' [', this.formatDate(date), '] ', message ].join('');
     }
 
     log(...args) {
-        // console.log(Array.isArray(args));
+        // debug(Array.isArray(args));
         if(!args.length){
             return;
         }
-        const log_index = this.levels.indexOf(args[0]);
+        const log_level = this.levels.hasOwnProperty(args[0]) ? args.shift() : 'info';
+        const index = this.getIndex(log_level);
         let message = '';
-
-        // if you're just default logging
-        if (log_index === -1) { 
-            log_index = 7; 
-        } else {
-            // the first argument actually was the log level
-            args.shift();
-        }
-        if (log_index <= this.log_level_index) {
+        // debug(log_level);
+        // debug(index);
+        if (index >= this.log_level_index) {
             if( isFormattableString(args) ) {
-                // console.log('logger: formatting message');
+                // debug('logger: formatting message');
                 message = util.format(...args);
             }else{
                 // join the arguments into a loggable string
@@ -116,25 +133,35 @@ class Logger {
                 });
             }
             
-            message = this.format(this.levels[log_index], new Date(), message);
-            this.write(message + "\n");
+            message = this.format(log_level, new Date(), message);
+            this.write(message + "\n",log_level);
             return message;
+        }else{
+            // debug("miss\n")
         }
         return false;
     }
 
 }
 
+Logger.prototype.levels = {
+    emerg:'red',
+    alert: 'red',
+    crit: 'red',
+    error: 'red',
+    warning:'yellow',
+    notice:'cyan',
+    info:'cyan',
+    debug:'cyan'
+};
+
 function createLogger(options={}) {
     const logger = new Logger(options);
     const log = (...args) => {
         logger.log('info',...args);
     };
+    Object.keys(logger.levels).forEach(level=>log[level] = (...args) => logger.log(level,...args));
     log.logger = logger;
-
-    logger.levels.forEach(level=>{
-        log[level] = (...args) => logger.log(level,...args);
-    })  
     return log;  
 }
 
