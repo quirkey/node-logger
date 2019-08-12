@@ -1,6 +1,6 @@
 const {createLogger} = require('./logger');
 
-const log = createLogger({log_level:'debug',transports:['file']});//default options are shown.  
+const log = createLogger({log_level:'debug',transports:['file']});
 
 log('hi!');//default log level is info
 log.info('hi!');
