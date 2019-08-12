@@ -1,5 +1,5 @@
 {
-  "name": "@r3wt/logger",
+  "name": "@r3wt/log",
   "version": "1.0.0",
   "description": "a simple logger for node.js",
   "main": "logger.js",
