@@ -30,8 +30,8 @@ I found [this library from quirkey](https://github.com/quirkey/node-logger) and 
 ### API
 
 | function  |  options  | example |
-|---|---|
-| `createLogger(Object options)`  | `{log_level: Enum(debug , info , notice , warning , error , crit , alert , emerg), transports: Array< String|Object >, debug: Bool }  | `createLogger({log_level:'warning'})` |
+|---|---|---|
+| `createLogger(Object options)`  | `{log_level: Enum(debug , info , notice , warning , error , crit , alert , emerg), transports: Array< String|Object >, debug: Bool }  | `createLogger ({log_level:'warning'})` |
 
 ### Basic Usage
 
