@@ -1,6 +1,6 @@
 const {createLogger,wrapConsole,unwrapConsole} = require('./logger');
 
-const log = createLogger();
+const log = createLogger({log_level:'warning',debug:true});
 
 wrapConsole(log);//wraps the console globally
 

@@ -44,9 +44,20 @@ const pad = (str,len) => str + new Array(len - str.length).fill(' ').join('');
 
 const dateFormatter = d=> d.toLocaleString('en-US');
 
+const defaults = {
+    log_level:'debug',
+    transports:['console'],
+    formatDate:dateFormatter,
+    debug:false
+};
+
 class Logger {
 
-    constructor(options={log_level:'debug',transports:['console'],formatDate:false,debug:false}) {
+    constructor(_options={}) {
+        if(typeof _options !== 'object'){
+            throw new Error('configuration error: options must be an object');
+        }
+        const options = {...defaults,..._options};
         isDebug = options.debug;
         this.setLevel(options.log_level);
         this.setTransports(options.transports);
