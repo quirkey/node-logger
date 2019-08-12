@@ -27,6 +27,12 @@ I found [this library from quirkey](https://github.com/quirkey/node-logger) and 
 - Any of the logging methods take `n` arguments, which are each joined by ' ' (similar to `console.log()`).
 - You set the default log level, and nothing with a lower priority is logged. 
 
+### API
+
+| function  |  options  | example |
+|---|---|
+| `createLogger(Object options)`  | `{log_level: Enum(debug , info , notice , warning , error , crit , alert , emerg), transports: Array< String|Object >, debug: Bool }  | `createLogger({log_level:'warning'})` |
+
 ### Basic Usage
 
 **a few common use cases are shown below**
