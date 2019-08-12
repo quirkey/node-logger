@@ -49,6 +49,13 @@ log.error('oh fudge some bad stuff happened',new Error('am bad stuff. did happen
 ```
 
 
+setting the log level:
+```js
+const {createLogger} = require('@r3wt/log');
+const log = createLogger({log_level:'warning'});
+```
+
+
 wrapping `console` globally:
 ```js
 const {createLogger,wrapConsole,unwrapConsole} = require('@r3wt/log');
@@ -102,22 +109,29 @@ const {createLogger} = require('@r3wt/log');
 //technique 1 write formatted messages
 class CustomTransport1 {
     write(message,level,logger) {
-        // every transport must contain a method called write
+        // basic transport must include a `write` function. see below for custom transports
         // the function is called with formatted message, log level of message, and the logger instance
         // do something with the message
+
+        // your code here
     }
 }
 
 //technique 2 customize the formatting of your messages
 class CustomTransport2 {
-    //use writeCustom to take control of all formatting responsibilities
-    writeCustom(level,logger,...args) {
-        // format the log to your liking and send it to wherever
+    //use writeCustom to take control of all formatting responsibilities.
+    writeCustom(args,level,date,logger) {
+        // args are the original arguments passed to the logging function
+        // level is the log level
+        // date is a Date object for the time of the message
+        // logger is the logger instance
+        
+        // your code here
     }
 }
 
 const myTransport1 = new CustomTransport1;
-const myTransport2 = new CustomTransport2
+const myTransport2 = new CustomTransport2;
 
 const log = createLogger({
     transports: ['console',myTransport1,myTransport2]//in this example we keep the default console and add our custom Transports as well

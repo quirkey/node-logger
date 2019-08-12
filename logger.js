@@ -118,8 +118,8 @@ class Logger {
         this.formatDate = fn;
     }
 
-    write(text,level) {
-        this.transports.forEach(transport=>transport.write(text,level,this));
+    write(text,level,date,args) {
+        this.transports.forEach(transport=>transport.hasOwnProperty('writeCustom')? transport.writeCustom(args,level,date,this):transport.write(text,level,this));
     }
 
     format(level, date, message) {
@@ -152,9 +152,9 @@ class Logger {
                     }
                 });
             }
-            
-            message = this.format(log_level, new Date(), message);
-            this.write(message + "\n",log_level);
+            const date = new Date();
+            message = this.format(log_level,date, message);
+            this.write(message + "\n",log_level,date,args);
             return message;
         }else{
             debug("miss\n")
