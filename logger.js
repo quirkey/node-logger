@@ -164,7 +164,7 @@ Logger.prototype.levels = {
     debug:'cyan'
 };
 
-function createLogger(options={}) {
+function createLogger(options) {
     const logger = new Logger(options);
     const log = (...args) => {
         logger.log('info',...args);
