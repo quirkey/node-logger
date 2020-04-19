@@ -37,32 +37,35 @@ const util = require("util");
 const fs = require('fs');
 
 
-function makeArray(nonarray: any): Array { 
+function makeArray(nonarray: any): Array<any> { 
  	return Array.prototype.slice.call(nonarray); 
 };
 
-// Create a new instance of Logger, logging to the file at `log_file_path`
-// if `log_file_path` is null, log to STDOUT.
-
+/**
+ * Interface for "Logger.stream" object. Called by "Logger.prototype.log()".
+ * : Logger.stream can be set to anything that has implements "write" in it's object or prototype. 
+ *
+ * @param {string} text: String to write to "stdout | stderr | logfile".
+ */
 interface WritableLogStream {
 	write(text: string): any;
 }
+
+/**
+ * For reference in Logger constructor.
+ */
+type FileDescriptor = 1 | 2;
+type LogLevels = "fatal" | "error" | "warn" | "info" | "debug" | 1 | 2 | 3 | 4 | 5;
 
 /**
  * 
  */
 class Logger {
 	
-	STDOUT = process.stdout;
-	STDERR = process.stderr;
-	DEFAULT_LEVEL = 3;
 	levels = ["fatal", "error", "warn", "info", "debug"];
 	stream: WritableLogStream;
-	fatal: object;
-	error: object;
-	warn: object;
-	info: object;
-	error: object;
+	log_level_index: number;
+	log_level_default = 3;
 
 	/**
 	 * Instantiates the Logger class and configures "stream" and "log_level_index" properties.
@@ -76,31 +79,24 @@ class Logger {
 	 * @default {object} stream: process.env.stdout
 	 * @default {number} log_level_index: 3 // which is "info".
 	 */
-	constructor(log_file_path?: any, log_level_index?: number) {
-		if (log_file_path === ("STDOUT" || 1)) {
-			this.stream = this.STDOUT;
+	constructor(log_file_path?: string | FileDescriptor | WritableLogStream, log_level?: LogLevels) {
+		if (log_file_path === 1 || log_file_path === "STDOUT") {
+			this.stream = process.stdout;
 		}
-		else if (log_file_path === ("STDERR" || 2)) {
-			this.stream = this.STDERR;
+		else if (log_file_path === 2 || log_file_path === "STDERR") {
+			this.stream = process.stderr;
 		}
 		else if (typeof log_file_path === "string") {
-			this.stream = fs.createWriteStream(log_file_path, {flags: "a", encoding: "utf8", mode: 0666});
+			this.stream = fs.createWriteStream(log_file_path, {flags: "a", encoding: "utf8", mode: parseInt("0666", 10)});
 		}
 		else if ((typeof log_file_path === "object") && ("write" in log_file_path)) {
 			this.stream = log_file_path;
 			this.stream.write("\n");
 		}
 		else {
-			this.stream = this.STDOUT;
+			this.stream = process.stdout;
 		}
-		this.log_level_index = log_level_index || this.DEFAULT_LEVEL;
-		this.levels.forEach(level => {
-			this[level] = function() {
-				let args = makeArray(arguments);
-				args.unshift(level);
-				return this.log.apply(this, args);
-			}
-		});
+		this.log_level_index = typeof log_level === "string" ? this.levels.indexOf(log_level) : log_level || this.log_level_default;
 	}
 
 	/**
@@ -148,15 +144,17 @@ class Logger {
 	}
 
 	/**
-	 *
+	 * Calls "this.stream.write()" with newline appended.
+	 * @return {string} message: log message with newline appended.
 	 */
 	public log(): string | boolean {
 		let args = makeArray(arguments);
 		let message = "";
-		let log_index = (this.levels.indexOf(args[0]) !== -1) ? args[0] : this.log_index_level;
+		let log_index = (this.levels.indexOf(args[0].toLowerCase()) !== -1) ? this.levels.indexOf(args[0]) : this.log_level_index;
 		if (log_index > this.log_level_index) {
 			return false;
 		} else {
+			args.shift();
 			args.forEach(arg => {
 				if (typeof arg === "string") {
 					message += " " + arg;
@@ -169,75 +167,40 @@ class Logger {
 			return message;
 		}
 	}
+
+	public fatal() {
+		let args = makeArray(arguments);
+		args.unshift("fatal");
+		return this.log.apply(this, args);
+	}
+
+	public error() {
+		let args = makeArray(arguments);
+		args.unshift("errors");
+		return this.log.apply(this, args);
+	}
+	
+	public warn() {
+		let args = makeArray(arguments);
+		args.unshift("warn");
+		return this.log.apply(this, args);
+	}
+
+	public info() {
+		let args = makeArray(arguments);
+		args.unshift("info");
+		return this.log.apply(this, args);
+	}
+	
+	public debug() {
+		let args = makeArray(arguments);
+		args.unshift("debug");
+		return this.log.apply(this, args);
+	}
+	
 }
-
-const DefaultLogger = Logger();
-
-/**
- * The default log formatting function.
- * @param {int} level: a number between 1 ~ 5.
- * @param {string} date: Default format is "Sat Jun 2010 01:12:05 GMT-0400 (EDT)".
- * @param {string} message: The message defined by the caller.
- * @return {string} output: log message.
- * 
- * The default format looks like:
- *  - "error [Sat Jun 12 2010 01:12:05 GMT-0400 (EDT)] message ..."
- */
-Logger.prototype.format = function(level, date, message) {
-	return [level, ' [', date, '] ', message].join('');
-};
-
-/**
- * Sets the maximum log level. The default level is "info" or 3.
- * @param {int} new_level: a number between 1 ~ 5.
- * @return {boolean} success: returns true when the new_level is successfully set, otherwise false.
- */
-Logger.prototype.setLevel = function(new_level) {
-  var index = Logger.levels.indexOf(new_level);
-  return (index != -1) ? this.log_level_index = index : false;
-};
-
-// The base logging method. If the first argument is one of the levels, it logs
-// to that level, otherwise, logs to the default level. Can take `n` arguments
-// and joins them by ' '. If the argument is not a string, it runs `sys.inspect()`
-// to print a string representation of the object.
-Logger.prototype.log = function() {
-  var args = makeArray(arguments),
-      log_index = Logger.levels.indexOf(args[0]),
-      message = '';
-
-  // if you're just default logging
-  if (log_index === -1) { 
-    log_index = this.log_level_index; 
-  } else {
-    // the first arguement actually was the log level
-    args.shift();
-  }
-  if (log_index <= this.log_level_index) {
-    // join the arguments into a loggable string
-    args.forEach(function(arg) {
-      if (typeof arg === 'string') {
-        message += ' ' + arg;
-      } else {
-        message += ' ' + sys.inspect(arg, false, null);
-      }
-    });
-    message = this.format(Logger.levels[log_index], new Date(), message);
-    this.write(message + "\n");
-    return message;
-  }
-  return false;
-};
-
-Logger.levels.forEach(function(level) {
-  Logger.prototype[level] = function() {
-    var args = makeArray(arguments);
-    args.unshift(level);
-    return this.log.apply(this, args);
-  };
-});
 
 exports.Logger = Logger;
 exports.createLogger = function(log_file_path) {
-  return new Logger(log_file_path);
+	return new Logger(log_file_path);
 };
