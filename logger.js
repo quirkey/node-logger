@@ -76,7 +76,9 @@ var Logger = /** @class */ (function () {
         }
         this.log_level_index = typeof log_level === "string" ? this.levels.indexOf(log_level) : log_level || this.log_level_default;
         // This is here for the puspose of assigning "Logger.levels" dynamically to ...	
-        // this class' as prototype methods just like in the original source.
+        // this class' as a log call just like in the original source, except that ...
+        // It does not assign it to the Logger.prototype because it is in the constrcutor.
+        // I don't know how to implement this correctly so if anyone knows a better way, please do so.
         this.levels.forEach(function (level) {
             if (_this[level] === undefined) {
                 Object.assign(_this, function () {
