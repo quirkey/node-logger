@@ -1,0 +1,11 @@
+{
+	"compileOnSave": true,
+	"complilerOptions": {
+		"module": "commonjs",
+		"noImplicitAny": true,
+		"sourceMap": true
+	},
+	"files": [
+		"logger.ts"
+	]
+}
