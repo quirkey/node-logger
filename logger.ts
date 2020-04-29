@@ -51,6 +51,7 @@ interface WritableLogStream {
 	write(text: string): any;
 }
 
+
 /**
  * For reference in Logger constructor.
  */
@@ -97,6 +98,20 @@ class Logger {
 			this.stream = process.stdout;
 		}
 		this.log_level_index = typeof log_level === "string" ? this.levels.indexOf(log_level) : log_level || this.log_level_default;
+
+		// This is here for the puspose of assigning "Logger.levels" dynamically to ...	
+		// this class' as a log call just like in the original source, except that ...
+		// It does not assign it to the Logger.prototype because it is in the constrcutor.
+		// I don't know how to implement this correctly so if anyone knows a better way, please do so.
+		this.levels.forEach(level => {
+			if (this[level] === undefined) {
+				Object.assign(this, function() {
+					let args = makeArray(arguments);
+					args.unshift(level);
+					return this.log.apply(this, args);
+				})
+			}
+		})
 	}
 
 	/**
@@ -147,7 +162,7 @@ class Logger {
 	 * Calls "this.stream.write()" with newline appended.
 	 * @return {string} message: log message with newline appended.
 	 */
-	public log(): string | boolean {
+	public log(): string | false {
 		let args = makeArray(arguments);
 		let message = "";
 		let log_index = (this.levels.indexOf(args[0].toLowerCase()) !== -1) ? this.levels.indexOf(args[0]) : this.log_level_index;
@@ -176,7 +191,7 @@ class Logger {
 
 	public error() {
 		let args = makeArray(arguments);
-		args.unshift("errors");
+		args.unshift("error");
 		return this.log.apply(this, args);
 	}
 	
@@ -197,10 +212,9 @@ class Logger {
 		args.unshift("debug");
 		return this.log.apply(this, args);
 	}
-	
 }
 
 exports.Logger = Logger;
-exports.createLogger = function(log_file_path) {
+exports.createLogger = function(log_file_path: WritableLogStream | string): Logger {
 	return new Logger(log_file_path);
 };

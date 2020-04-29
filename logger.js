@@ -55,6 +55,7 @@ var Logger = /** @class */ (function () {
      * @default {number} log_level_index: 3 // which is "info".
      */
     function Logger(log_file_path, log_level) {
+        var _this = this;
         this.levels = ["fatal", "error", "warn", "info", "debug"];
         this.log_level_default = 3;
         if (log_file_path === 1 || log_file_path === "STDOUT") {
@@ -74,6 +75,17 @@ var Logger = /** @class */ (function () {
             this.stream = process.stdout;
         }
         this.log_level_index = typeof log_level === "string" ? this.levels.indexOf(log_level) : log_level || this.log_level_default;
+        // This is here for the puspose of assigning "Logger.levels" dynamically to ...	
+        // this class' as prototype methods just like in the original source.
+        this.levels.forEach(function (level) {
+            if (_this[level] === undefined) {
+                Object.assign(_this, function () {
+                    var args = makeArray(arguments);
+                    args.unshift(level);
+                    return this.log.apply(this, args);
+                });
+            }
+        });
     }
     /**
      * The stream used in this function is defined in the constructor.
@@ -149,7 +161,7 @@ var Logger = /** @class */ (function () {
     };
     Logger.prototype.error = function () {
         var args = makeArray(arguments);
-        args.unshift("errors");
+        args.unshift("error");
         return this.log.apply(this, args);
     };
     Logger.prototype.warn = function () {
