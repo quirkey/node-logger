@@ -184,6 +184,6 @@ var Logger = /** @class */ (function () {
     return Logger;
 }());
 exports.Logger = Logger;
-exports.createLogger = function (log_file_path) {
-    return new Logger(log_file_path);
+exports.createLogger = function (log_file_path, logLevel) {
+    return new Logger(log_file_path, logLevel);
 };

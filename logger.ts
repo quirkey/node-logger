@@ -215,6 +215,6 @@ class Logger {
 }
 
 exports.Logger = Logger;
-exports.createLogger = function(log_file_path: WritableLogStream | string): Logger {
-	return new Logger(log_file_path);
+exports.createLogger = function(log_file_path?: WritableLogStream | FileDescriptor | string, logLevel?: LogLevels): Logger {
+	return new Logger(log_file_path, logLevel);
 };
