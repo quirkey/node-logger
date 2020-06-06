@@ -1,10 +1,14 @@
-# node-logger
+# logger2x
 
-[https://github.com/ystcode/node-logger](https://github.com/ystcode/node-logger)
+[https://github.com/ystcode/logger2x](https://github.com/ystcode/logger2x)
 
 ## SUMMARY
 
-A simple logging library that combines the simple APIs of Ruby's logger.rb and browser-js console.log()
+A simple logging library.
+
+## INSTALL
+
+    npm i logger2x --save
 
 ## USAGE
 
@@ -19,8 +23,8 @@ By default, a logger writes to STDOUT, but given a writeable file path, it will 
 ### Instantiation:
 
     // node/common.js style 
-    var logger = require('logger').createLogger(); // logs to STDOUT
-    var logger = require('logger').createLogger('development.log'); // logs to a file
+    var logger = require('logger2x').createLogger(); // logs to STDOUT
+    var logger = require('logger2x').createLogger('development.log'); // logs to a file
 
 ### Logging:
 
