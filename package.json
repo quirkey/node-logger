@@ -1,4 +1,4 @@
-{ "name" : "logger"
+{ "name" : "logger2x"
 , "version" : "0.0.1"
 , "description" : "A simple logging library that combines the simple APIs of Ruby's logger.rb and browser-js console.log()"
 , "author" : "Aaron Quint <aaron@quirkey.com>"
