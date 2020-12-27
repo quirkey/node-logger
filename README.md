@@ -1,6 +1,6 @@
 # logger2x
 
-[https://github.com/ystcode/logger2x](https://github.com/ystcode/logger2x)
+[https://github.com/onblog/logger2x](https://github.com/onblog/logger2x)
 
 ## SUMMARY
 
