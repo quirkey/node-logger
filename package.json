@@ -1,7 +1,7 @@
 { "name" : "logger2x"
-, "version" : "0.0.2"
+, "version" : "0.0.3"
 , "description" : "A simple logging library that combines the simple APIs of Ruby's logger.rb and browser-js console.log()"
-, "author" : "Aaron Quint <aaron@quirkey.com>"
+, "author" : "Martin <codeblog@qq.com>"
 , "main" : "logger"
 , "engines" : { "node" : ">=0.1.90" }
 }

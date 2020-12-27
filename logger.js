@@ -44,22 +44,22 @@ var Logger = function (log_file_path) {
   // default write is STDOUT
   this.log_level_index = 0;
   this.write = function (text) {
-    text =  text.trim()
+    text =  text.trim();
     switch (this.log_level_index) {
       case 0:
-        console.log(text)
-        break
+        console.log(text);
+        break;
       case 1:
-        console.error(text)
-        break
+        console.error(text);
+        break;
       case 2:
-        console.warn(text)
-        break
+        console.warn(text);
+        break;
       case 3:
-        console.info(text)
-        break
+        console.info(text);
+        break;
       case 4:
-        console.debug(text)
+        console.debug(text);
         break
     }
   };
@@ -68,6 +68,11 @@ var Logger = function (log_file_path) {
   if (log_file_path) {
     // Write to a file
     log_file_path = path.normalize(log_file_path);
+    if (!fs.existsSync(log_file_path)) {
+      if (!fs.existsSync(path.dirname(log_file_path))) {
+        fs.mkdirSync(path.dirname(log_file_path))
+      }
+    }
     this.stream =
         fs.createWriteStream(log_file_path, {flags: 'a', encoding: 'utf8', mode: 0o666});
     this.write = function (text) {
@@ -110,7 +115,7 @@ Logger.prototype.log = function () {
     args.shift();
   }
   if (log_index < Logger.levels.length) {
-    this.log_level_index = log_index
+    this.log_level_index = log_index;
     // join the arguments into a loggable string
     args.forEach(function (arg) {
       if (typeof arg === 'string') {
@@ -134,6 +139,9 @@ Logger.levels.forEach(function (level) {
   };
 });
 
+/**
+ * Api
+ */
 exports.Logger = Logger;
 exports.createLogger = function (log_file_path) {
   return new Logger(log_file_path);
