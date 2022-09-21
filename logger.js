@@ -29,20 +29,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 var path = require('path'),
-    sys  = require('sys'),
+    util  = require('util'),
     fs   = require('fs');
 
-var makeArray = function(nonarray) { 
-  return Array.prototype.slice.call(nonarray); 
+var makeArray = function(nonarray) {
+  return Array.prototype.slice.call(nonarray);
 };
 
 // Create a new instance of Logger, logging to the file at `log_file_path`
 // if `log_file_path` is null, log to STDOUT.
 var Logger = function(log_file_path) {
   // default write is STDOUT
-  this.write     = sys.print;
+  this.write     = console.log;
   this.log_level_index = 3;
-  
+
   // if a path is given, try to write to it
   if (log_file_path) {
     // Write to a file
@@ -58,7 +58,7 @@ Logger.levels = ['fatal', 'error', 'warn', 'info', 'debug'];
 // The default log formatting function. The default format looks something like:
 //
 //    error [Sat Jun 12 2010 01:12:05 GMT-0400 (EDT)] message
-// 
+//
 Logger.prototype.format = function(level, date, message) {
   return [level, ' [', date, '] ', message].join('');
 };
@@ -71,7 +71,7 @@ Logger.prototype.setLevel = function(new_level) {
 
 // The base logging method. If the first argument is one of the levels, it logs
 // to that level, otherwise, logs to the default level. Can take `n` arguments
-// and joins them by ' '. If the argument is not a string, it runs `sys.inspect()`
+// and joins them by ' '. If the argument is not a string, it runs `util.inspect()`
 // to print a string representation of the object.
 Logger.prototype.log = function() {
   var args = makeArray(arguments),
@@ -79,8 +79,8 @@ Logger.prototype.log = function() {
       message = '';
 
   // if you're just default logging
-  if (log_index === -1) { 
-    log_index = this.log_level_index; 
+  if (log_index === -1) {
+    log_index = this.log_level_index;
   } else {
     // the first arguement actually was the log level
     args.shift();
@@ -91,7 +91,7 @@ Logger.prototype.log = function() {
       if (typeof arg === 'string') {
         message += ' ' + arg;
       } else {
-        message += ' ' + sys.inspect(arg, false, null);
+        message += ' ' + util.inspect(arg, false, null);
       }
     });
     message = this.format(Logger.levels[log_index], new Date(), message);
